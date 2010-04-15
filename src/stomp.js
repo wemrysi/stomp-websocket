@@ -27,7 +27,7 @@
     }
   };
 
-  trim = function(str) {
+  function trim(str) {
     return str.replace(/^\s+/g,'').replace(/\s+$/g,'');
   };
 
@@ -71,13 +71,13 @@
     // subscription callbacks indexed by subscriber's ID
     var subscriptions = {};
 
-    debug = function(str) {
+    function debug(str) {
       if (that.debug) {
         that.debug(str);
       }
     };
 
-    onmessage = function(evt) {
+    function onmessage(evt) {
       debug('<<< ' + evt.data);
       var frame = Stomp.unmarshal(evt.data);
       if (frame.command === "CONNECTED" && that.connectCallback) {
@@ -94,7 +94,7 @@
       }
     };
 
-    transmit = function(command, headers, body) {
+    function transmit(command, headers, body) {
       var out = Stomp.marshal(command, headers, body);
       debug(">>> " + out);
       ws.send(out);
