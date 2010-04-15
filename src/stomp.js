@@ -64,12 +64,13 @@
     return Stomp.frame(command, headers, body).toString() + '\0';
   };
   
-  Stomp.client = function (url){
-
-    var that, ws, login, passcode;
-    var counter = 0; // used to index subscribers
-    // subscription callbacks indexed by subscriber's ID
-    var subscriptions = {};
+  Stomp.client = function (url, keepAliveDelay){
+    var that, ws, login, passcode,
+        keepAliveIntervalId,
+        keepAliveDestination = '/topic/stomp/keepAlive',
+        keepAliveDelayMillis = (keepAliveDelay || 10) * 1000,
+        counter = 0, // used to index subscribers
+        subscriptions = {}; // subscription callbacks indexed by subscriber ID
 
     function debug(str) {
       if (that.debug) {
@@ -77,10 +78,15 @@
       }
     };
 
+    function sendKeepAlive() {
+      that.send(keepAliveDestination);
+    };
+
     function onmessage(evt) {
       debug('<<< ' + evt.data);
       var frame = Stomp.unmarshal(evt.data);
       if (frame.command === "CONNECTED" && that.connectCallback) {
+        keepAliveIntervalId = setInterval(sendKeepAlive, keepAliveDelayMillis);
         that.connectCallback(frame);
       } else if (frame.command === "MESSAGE") {
         var onreceive = subscriptions[frame.headers.subscription];
@@ -109,9 +115,10 @@
       ws.onclose   = function() {
         var msg = "Whoops! Lost connection to " + url;
         debug(msg);
-          if (errorCallback) {
-            errorCallback(msg);
-          }
+        clearInterval(keepAliveIntervalId);
+        if (errorCallback) {
+          errorCallback(msg);
+        }
       };
       ws.onopen    = function() {
         debug('Web Socket Opened...');

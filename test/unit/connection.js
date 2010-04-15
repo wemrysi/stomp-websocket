@@ -17,6 +17,7 @@ test("Connect to a valid Stomp server", function() {
   client.connect(TEST.login, TEST.password, 
     function() {
       start();
+      client.disconnect();
     });
     stop(TEST.timeout);
 });
