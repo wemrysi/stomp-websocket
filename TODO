@@ -1,3 +1,9 @@
+BUGS
+----
+
+- Don't call errorCallback when #disconnect() called.
+
+
 TODO
 ----
 
