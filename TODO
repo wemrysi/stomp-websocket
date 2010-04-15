@@ -1,0 +1,6 @@
+TODO
+----
+
+- Implement content-length support for body
+- Keep Alive (via SEND to dummy topic)
+- Auto-reconnect and re-subscribe?
