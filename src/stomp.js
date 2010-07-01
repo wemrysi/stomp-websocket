@@ -29,7 +29,7 @@
 
   function trim(str) {
     return str.replace(/^\s+/g,'').replace(/\s+$/g,'');
-  };
+  }
 
   Stomp.unmarshal = function(data) {
     var divider = data.search(/\n\n/),
@@ -76,18 +76,18 @@
       if (that.debug) {
         that.debug(str);
       }
-    };
+    }
 
     function sendKeepAlive() {
       that.send(keepAliveDestination);
-    };
+    }
 
     function onmessage(evt) {
       debug('<<< ' + evt.data);
       var frame = Stomp.unmarshal(evt.data);
-      if (frame.command === "CONNECTED" && that.connectCallback) {
+      if (frame.command === "CONNECTED") {
         keepAliveIntervalId = setInterval(sendKeepAlive, keepAliveDelayMillis);
-        that.connectCallback(frame);
+        if (that.connectCallback) that.connectCallback(frame);
       } else if (frame.command === "MESSAGE") {
         var onreceive = subscriptions[frame.headers.subscription];
         if (onreceive) {
@@ -98,13 +98,13 @@
       } else if (frame.command === "ERROR" && that.onerror) {
         that.onerror(frame);
       }
-    };
+    }
 
     function transmit(command, headers, body) {
       var out = Stomp.marshal(command, headers, body);
       debug(">>> " + out);
       ws.send(out);
-    };
+    }
 
     that = {};
 
