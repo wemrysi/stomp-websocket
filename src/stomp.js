@@ -63,6 +63,21 @@
   Stomp.marshal = function(command, headers, body) {
     return Stomp.frame(command, headers, body).toString() + '\0';
   };
+
+  Stomp.WebSocketObjects = ['WebSocket', 'MozWebSocket'];
+
+  Stomp.getWebSocket = function() {
+    var wsObjs = Stomp.WebSocketObjects,
+        len = wsObjs.length;
+
+    for (var i = 0; i < len; i++) {
+      if (typeof(window[wsObjs[i]]) !== 'undefined') {
+        return window[wsObjs[i]];
+      } 
+    } 
+
+    throw "Stomp: WebSocket not found!"
+  };
   
   Stomp.client = function (url, keepAliveDelay){
     var that, ws, login, passcode,
@@ -109,8 +124,9 @@
     that = {};
 
     that.connect = function(login_, passcode_, connectCallback, errorCallback) {
+      var WS = Stomp.getWebSocket();
       debug("Opening Web Socket...");
-      ws = new WebSocket(url);
+      ws = new WS(url);
       ws.onmessage = onmessage;
       ws.onclose   = function() {
         var msg = "Whoops! Lost connection to " + url;
